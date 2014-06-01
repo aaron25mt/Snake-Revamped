@@ -24,10 +24,8 @@ class SnakeHead(object):
         self.window = window
         self.length = 1
         self.dead = False
-
         self.time_elapsed = 0
         self.fpsClock = pygame.time.Clock()
-
         self.tail = []
         self.head = SnakeBody(self.xPos, self.yPos, color, window)
         self.direction = -1

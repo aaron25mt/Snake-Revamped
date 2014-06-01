@@ -3,12 +3,15 @@ from pygame.locals import *
 
 class Game(object):
     '''initiate a game'''
-    def __init__(self, name="Snake Revamped", size=(640, 480)):
+    def __init__(self, name="Snake Revamped", size=(640, 480), hiscore=0):
         self.name = name
         self.size = size
+        if(hiscore == None):
+            self.hiscore = 0
+        else:
+            self.hiscore = self.getHighScore()
         self.colors = {'red': pygame.Color(255, 0, 0), 'blue': pygame.Color(0, 0, 255), 'green': pygame.Color(0, 255, 0), 'white': pygame.Color(255, 255, 255), 'black': pygame.Color(0, 0, 0)}
         self.settings = {'backgroundColor': self.colors['white'], 'snakeColor': self.colors['red'], 'snakeFood': self.colors['green']}
-
         pygame.init()
         self.window = pygame.display.set_mode(self.size)
         pygame.display.set_caption(self.name)
@@ -17,10 +20,7 @@ class Game(object):
     def main(self):
         '''start a game'''
         self.window.fill(self.settings['backgroundColor'])
-
-        #pygame.draw.rect(self.window, self.colors['white'], [545, 5, 100, 40])
         self.font = pygame.font.Font(None, 40)
-
         self.fpsClock = pygame.time.Clock()
         self.snake = snake.SnakeHead((272.5, 240), self.settings['snakeColor'], self.window) #create the snake head
         self.food = food.Food(self.snake, self.settings['snakeFood'], self.window) #create the food
@@ -98,24 +98,23 @@ class Game(object):
                         if(x.getRect().collidepoint(mousePos)):
                             if(x != donebutton):
                                 self.settings[x.changeWhat] = self.colors[x.changeColor]
-                                print(x.changeWhat)
-                                print(x.changeColor)
                             else:
                                 self.showMainMenu()
             pygame.display.update()
 
     def showMainMenu(self):
         '''shows the main menu'''
+        fullscreen = False
         while True:
             bg = pygame.image.load("bg.jpg").convert()
             self.window.blit(bg, [0, 0])
             logo = pygame.image.load("logo.jpg").convert()
             self.window.blit(logo, [(self.window.get_width()/2) - 96, 10])
-
-            playgamebutton = button.Button(self.window, pygame.Color(0,0,0), (self.window.get_width()/2)-50, (240)- 15, 100, 50, 50, ' Play  ', self.colors['white'])
-            optionsbutton = button.Button(self.window, pygame.Color(0,0,0), (self.window.get_width()/2)-50, (240) + 60, 100, 50, 50, 'Options', self.colors['white'])
-            exitbutton = button.Button(self.window, pygame.Color(0,0,0), (self.window.get_width()/2)-50, (240) + 135, 100, 50, 50, ' Exit ', self.colors['white'])
-            for x in [playgamebutton, optionsbutton, exitbutton]:
+            playgamebutton = button.Button(self.window, self.colors['black'], (self.window.get_width()/2)-50, 200, 100, 45, 50, ' Play ', self.colors['white'])
+            optionsbutton = button.Button(self.window, self.colors['black'], (self.window.get_width()/2)-50, 265, 100, 45, 50, 'Options', self.colors['white'])
+            fullsnbutton = button.Button(self.window, self.colors['black'], (self.window.get_width()/2)-50, 330, 100, 45, 50, 'Expand', self.colors['white'])
+            exitbutton = button.Button(self.window, self.colors['black'], (self.window.get_width()/2)-50, 395, 100, 45, 50, ' Exit ', self.colors['white'])
+            for x in [playgamebutton, optionsbutton, fullsnbutton, exitbutton]:
                 x.create_button()
             for event in pygame.event.get():
                 if(event.type == pygame.QUIT):
@@ -127,6 +126,12 @@ class Game(object):
                         self.main()
                     if(optionsbutton.getRect().collidepoint(mousePos)):
                         self.showOptionsMenu()
+                    if(fullsnbutton.getRect().collidepoint(mousePos)):
+                        fullscreen = not fullscreen
+                        if(fullscreen):
+                            pygame.display.set_mode((640, 480), pygame.FULLSCREEN)
+                        else:
+                            pygame.display.set_mode((640, 480))
                     if(exitbutton.getRect().collidepoint(mousePos)):
                         self.quitGame()
             pygame.display.update()
@@ -139,18 +144,48 @@ class Game(object):
                     self.quitGame()
             self.window.fill(self.settings['backgroundColor'])
             self.snake.updatePosition()
-            self.food.updateFood(self.snake)
+            self.checkScore()
             xLoc = 610 if (self.snake.length < 10) else 600 if (self.snake.length < 100) else 580 if (self.snake.length < 1000) else 565 #account for the number of digits
             self.window.fill(self.settings['backgroundColor'], (xLoc, 35, 100, 35))
             if(self.settings['backgroundColor'] != self.colors['black']):
                 self.window.blit(self.font.render("Score:", False, self.colors['black']), (545, 5))
                 self.window.blit(self.font.render(str(self.snake.length-1), True, self.colors['black']), (xLoc, 35))
+                self.window.blit(pygame.font.Font(None, 30).render("Hi-Score:", False, self.colors['black']), (545, 95))
+                self.window.blit(self.font.render(str(self.hiscore), True, self.colors['black']), (xLoc, 125))
             else:
                 self.window.blit(self.font.render("Score:", False, self.colors['white']), (545, 5))
                 self.window.blit(self.font.render(str(self.snake.length-1), True, self.colors['white']), (xLoc, 35))
+                self.window.blit(pygame.font.Font(None, 30).render("Hi-Score:", False, self.colors['white']), (545, 95))
+                self.window.blit(self.font.render(str(self.hiscore), True, self.colors['white']), (xLoc, 125))
             self.drawBounds()
             pygame.display.update()
         self.showGameOver()
+
+    def checkScore(self):
+        '''checks the current and high score'''
+        self.food.updateFood(self.snake)
+        if(self.snake.length-1 > self.hiscore):
+            self.hiscore = self.snake.length-1
+            self.updateHighScore(self.snake.length-1)
+
+    def getHighScore(self):
+        '''reads and returns the current high score'''
+        try:
+            highscoreFile = open('highscore.txt', 'r')
+            highscore = int(highscoreFile.read())
+            highscoreFile.close()
+            return highscore
+        except IOError or ValueError:
+            return 0
+
+    def updateHighScore(self, newScore):
+        '''updates the new highscore'''
+        try:
+            highscoreFile = open('highscore.txt', 'w')
+            highscoreFile.write(str(newScore))
+            highscoreFile.close()
+        except IOError:
+            print('Unable to record high score.')
 
     def drawBounds(self): #since we do this twice
         '''draws the bounding lines'''
@@ -165,4 +200,4 @@ class Game(object):
         sys.exit()
 
 if __name__ == "__main__": #i have no idea how/why this works
-    game = Game()
+    game = Game("Snake Rerevamped", (640, 480), None)
