@@ -34,9 +34,3 @@ class Food(object):
         if(len(self.foods) <= 0): #if there's no food on screen
             food = FoodPiece(self.color, self.window) #create a new food piece
             self.foods.append(food) #so we know a piece exists
-        for piece in self.foods:
-            #if(0 <= abs(piece.xPos - snake.xPos) <= 15 and 0 <= abs(piece.yPos - snake.yPos) <= 15): #if the snake head is relatively close to the food
-            if(snake.getRect().colliderect(piece.getRect())):
-                snake.length += 1 #make the snake bigger
-                self.foods.remove(piece) #remove the food piece
-            piece.drawFood() #draw the food

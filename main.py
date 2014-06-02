@@ -164,9 +164,17 @@ class Game(object):
     def checkScore(self):
         '''checks the current and high score'''
         self.food.updateFood(self.snake)
+        self.checkCollison(self.snake, self.food)
         if(self.snake.length-1 > self.hiscore):
             self.hiscore = self.snake.length-1
-            self.updateHighScore(self.snake.length-1)
+            self.updateHighScore(self.snake.length-1, True)
+
+    def checkCollison(self, snake, food):
+        for piece in food.foods:
+            if(snake.getRect().colliderect(piece.getRect())):
+                snake.length += 1 #make the snake bigger
+                food.foods.remove(piece) #remove the food piece
+            piece.drawFood() #draw the food
 
     def getHighScore(self):
         '''reads and returns the current high score'''
