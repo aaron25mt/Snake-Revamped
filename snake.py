@@ -31,6 +31,10 @@ class SnakeHead(object):
         self.direction = -1
         # direction number corresponds to up, right, down, and left. see line #37
 
+    def getRect(self):
+        '''returns the rect of the snake'''
+        return pygame.Rect(self.xPos, self.yPos, 15, 15)
+
     def updatePosition(self):
         '''update the snakes position'''
         dt = self.fpsClock.tick(15) #prevents snake from 'blinking'

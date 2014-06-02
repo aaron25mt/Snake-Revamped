@@ -200,4 +200,4 @@ class Game(object):
         sys.exit()
 
 if __name__ == "__main__": #i have no idea how/why this works
-    game = Game("Snake Rerevamped", (640, 480), None)
+    game = Game("Snake Rerevamped", (640, 480), 0)
