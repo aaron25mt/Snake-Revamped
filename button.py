@@ -31,7 +31,6 @@ class Button(object):
         myFont = pygame.font.SysFont("Calibri", font_size)
         myText = myFont.render(self.text, 1, self.text_color)
         self.surface.blit(myText, ((self.x + self.length / 2) - myText.get_width() / 2, (self.y + self.height / 2) - myText.get_height() / 2)) #draws the text to the screen, ran after draw_button, so the text is on the button
-        return self.surface
 
     def draw_button(self):
         '''function to draw button to screen'''
@@ -46,4 +45,3 @@ class Button(object):
             self.surface.blit(s, (self.x - i, self.y - i)) #draw the actual rects
         pygame.draw.rect(self.surface, self.color, (self.x, self.y, self.length, self.height), 0) #this and the next line draw the actual 'main focus' rectangles
         pygame.draw.rect(self.surface, (190, 190, 190), (self.x, self.y, self.length, self.height), 1)
-        return self.surface
