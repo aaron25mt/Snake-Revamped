@@ -13,6 +13,7 @@ class Button(object):
         self.width = width
         self.text = text
         self.text_color = text_color
+        #changeWhat and changeColor are for option buttons (thus optional)
         self.changeWhat = changeWhat
         self.changeColor = changeColor
 
@@ -27,8 +28,7 @@ class Button(object):
 
     def write_text(self):
         '''function to write text to screen'''
-        font_size = int(self.length // len(self.text)) #makes it so the size is fitting for the length of the word
-        myFont = pygame.font.SysFont("Calibri", font_size)
+        myFont = pygame.font.SysFont("Calibri", int(self.length // len(self.text))) #makes it so the size is fitting for the length of the word
         myText = myFont.render(self.text, 1, self.text_color)
         self.surface.blit(myText, ((self.x + self.length / 2) - myText.get_width() / 2, (self.y + self.height / 2) - myText.get_height() / 2)) #draws the text to the screen, ran after draw_button, so the text is on the button
 
